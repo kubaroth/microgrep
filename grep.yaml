@@ -1,0 +1,10 @@
+filetype: grep
+
+detect:
+    filename: "\\.(grep)$"
+    header: "%GREP"
+
+rules:
+
+      # File path
+    - type:  "(.*?):"

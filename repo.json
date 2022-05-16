@@ -1,0 +1,14 @@
+[{
+  "Name": "microgrep",
+  "Plugin which wraps grep command to perform string searches and display results in a separate buffer.",
+  "Tags": ["grep"],
+  "Versions": [
+    {
+      "Version": "1.0.0",
+      "Url": "https://github.com/kubaroth/microgrep",
+      "Require": {
+        "micro": ">=2.0.10"
+      }
+    }
+  ]
+}]
