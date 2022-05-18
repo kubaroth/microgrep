@@ -1,6 +1,6 @@
 [{
   "Name": "microgrep",
-  "Plugin which wraps grep command to perform string searches and display results in a separate buffer.",
+  "A plugin which wraps 'grep' command to perform string searches and display results in a new buffer.",
   "Tags": ["grep"],
   "Versions": [
     {

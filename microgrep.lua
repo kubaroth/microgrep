@@ -30,30 +30,35 @@ function iterateTabs()
     end
 end
 
-function stdoutCallback(out)
-    local buf = micro.CurPane().Buf
+function stdoutCallback(out, args)
+    local bp = args[1] -- original buffer
+    local buf = bp.Buf
+    bp:CursorEnd()
     local loc = buf:GetActiveCursor().Loc
     buf:Insert(buffer.Loc(loc.X, loc.Y), out)
 end
 
-function stderrCallback(out)
-    local buf = micro.CurPane().Buf
+function stderrCallback(out, args)
+    local bp = args[1]
+    local buf = bp.Buf
+
+    bp:CursorEnd()
     local loc = buf:GetActiveCursor().Loc
-     -- TODO: In the future, consider setting cursor location at buffer end,
-     -- in cases of long running grep command, while user modifies CurPane()
-    -- Right now we assume the insertion point is unchanged and at the end
     buf:Insert(buffer.Loc(loc.X, loc.Y), out)
 end
 
-function onExitCallback(out)
-    local buf = micro.CurPane().Buf
+function onExitCallback(out, args)
+    local bp = args[1]
+    local buf = bp.Buf
+
+    bp:CursorEnd()
     local loc = buf:GetActiveCursor().Loc
     buf:Insert(buffer.Loc(loc.X, loc.Y), "DONE\n")
     -- On exit, set buffer to read only
     cmd ={}
     cmd[1] = "readonly"
     cmd[2] = "true"
-    micro.CurPane():SetCmd(cmd)
+    bp:SetCmd(cmd)
 
 end
 
@@ -70,9 +75,8 @@ function grepCommand(bp, name)
     cmd[1] = "filetype"
     cmd[2] = "grep"
     bp:SetCmd(cmd)  -- Enable custom grep coloring for this buffer
-    
-    local options = {"-rn", name[1]} -- recursive with line number
-    local job = shell.JobSpawn("grep", options, stdoutCallback, stderrCallback, onExitCallback )
+    local options = {"-rnIi", name[1]} -- recursive with line number, skip binary, ignore case
+    local job = shell.JobSpawn("grep", options, stdoutCallback, stderrCallback, onExitCallback, micro.CurPane())
 
     local buf = micro.CurPane().Buf
     buf:SetName("grep:" .. name[1])

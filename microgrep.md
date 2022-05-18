@@ -1,16 +1,16 @@
 # Overview
 
-Plugin which wraps grep command to perform string searches and display results in a new buffer. 
+A plugin which wraps 'grep' command to perform string searches and display results in a new buffer.
 
 # Features
 
-- fast preview of results using <tab> key
-- grep process asynchronously updates results buffer
-- custom color scheme for better readability
+- Fast results file inspection using <tab> key.
+- For long running searches, matching results are returned immediately.
+- Custom color scheme for improved readability.
 
 # Commands
 
- `grep search_key` - start a search for a specified string using current directory as the root. The process runs asynchronously, matching results are displayed in a new tab.
-Hitting *<tab>* on any line  which contains a valid file path will open a preview in a horizontal split.
+ `grep search_key` - Starts the current directory where Micro was launched and searches for a specified string. The process runs in the background, matching results are displayed in a new tab.
+Hitting *<tab>* on any line which contains a valid file path opens a preview in a temporary horizontal split.
 
-`greppath` - stores file path of the active buffer in the system clipboard. The curernt use case is in combination with grep, as a shorthand to open files deep file paths.
+`greppath` - stores file paths of the active buffer in the system clipboard. The current use case is to use it in combination with grep, as a shorthand to open files with long paths.
