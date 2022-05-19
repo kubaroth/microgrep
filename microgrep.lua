@@ -55,10 +55,7 @@ function onExitCallback(out, args)
     local loc = buf:GetActiveCursor().Loc
     buf:Insert(buffer.Loc(loc.X, loc.Y), "DONE\n")
     -- On exit, set buffer to read only
-    cmd ={}
-    cmd[1] = "readonly"
-    cmd[2] = "true"
-    bp:SetCmd(cmd)
+    bp:SetCmd({"readonly", "true"})
 
 end
 
@@ -71,10 +68,7 @@ function grepCommand(bp, name)
     end
     bp:AddTab()  -- This updates CurPane
 
-    cmd = {}
-    cmd[1] = "filetype"
-    cmd[2] = "grep"
-    bp:SetCmd(cmd)  -- Enable custom grep coloring for this buffer
+    bp:SetCmd({"filetype", "grep"})  -- Enable custom grep coloring for this buffer
     local options = {"-rnIi", name[1]} -- recursive with line number, skip binary, ignore case
     local job = shell.JobSpawn("grep", options, stdoutCallback, stderrCallback, onExitCallback, micro.CurPane())
 
@@ -153,6 +147,10 @@ function grepOpen(bp)
     local subCursor = subbuf:GetActiveCursor()
     subCursor:GotoLoc(buffer.Loc(0, lineNum))
     micro.CurPane():Center()  -- Center view
+    bp:SetCmd({"filetype","unknown" })  -- Undo previously set grep filetype so that Micro autodetect file openen in a split
+
+
+    
     micro.CurPane():NextSplit()  -- Toggle back to grep buffer
     
     -- Use start location but set column 0 so that Cursor is on the valid path string.
@@ -170,9 +168,8 @@ function onInsertTab(bp)
     if buf:GetName():find("^grep") == nil then
         return
     end
-    cmd = {}
-    cmd[1]="readonly"
-    local readonly = bp:ShowCmd(cmd)
+    
+    local readonly = bp:ShowCmd({"readonly"})
 
     -- TODO: undo only if we press tab in a non-readonly buffer
     -- right now we set buffer to readonly in onExit() callback.
