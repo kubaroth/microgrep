@@ -8,10 +8,12 @@ local config = import("micro/config")
 local clipboard = import("micro/clipboard")
 local fmt = import("fmt")
 local os = import("os")
+local strings = import("strings")
 
 function init()
     config.MakeCommand("grep", grepCommand, config.NoComplete)
     config.MakeCommand("greppath", grepShowPath, config.NoComplete)
+
     -- Register syntax file
     config.AddRuntimeFile("microgrep", config.RTHelp, "microgrep.md")
     config.AddRuntimeFile("microgrep", config.RTSyntax, "grep.yaml")
@@ -33,27 +35,31 @@ end
 function stdoutCallback(out, args)
     local bp = args[1] -- original buffer
     local buf = bp.Buf
-    bp:CursorEnd()
-    local loc = buf:GetActiveCursor().Loc
-    buf:Insert(buffer.Loc(loc.X, loc.Y), out)
+    local shrbuf = buf.SharedBuffer
+    local endLoc = shrbuf.LineArray:End()
+    -- NOTE: need to copy Loc as endLoc gets out of scope and is nil during Insert
+    buf:Insert(buffer.Loc(endLoc.X, endLoc.Y), out)
 end
 
 function stderrCallback(out, args)
     local bp = args[1]
     local buf = bp.Buf
 
-    bp:CursorEnd()
-    local loc = buf:GetActiveCursor().Loc
-    buf:Insert(buffer.Loc(loc.X, loc.Y), out)
+    local shrbuf = buf.SharedBuffer
+    local endLoc = shrbuf.LineArray:End()
+    buf:Insert(buffer.Loc(endLoc.X, endLoc.Y), out)
+
 end
 
 function onExitCallback(out, args)
     local bp = args[1]
     local buf = bp.Buf
 
-    bp:CursorEnd()
-    local loc = buf:GetActiveCursor().Loc
-    buf:Insert(buffer.Loc(loc.X, loc.Y), "DONE\n")
+
+    local shrbuf = buf.SharedBuffer
+    local endLoc = shrbuf.LineArray:End()
+    buf:Insert(buffer.Loc(endLoc.X, endLoc.Y), "DONE")
+
     -- On exit, set buffer to read only
     bp:SetCmd({"readonly", "true"})
 

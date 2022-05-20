@@ -6,5 +6,8 @@ detect:
 
 rules:
 
-      # File path
+    # File path
     - type:  "(.*?):"
+
+    # Complete
+    - statement:  "^DONE"
