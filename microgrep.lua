@@ -93,7 +93,7 @@ function grepShowPath(bp)
     
     -- Split pane in half and add some text
     micro.CurPane():HSplitAction()
-    local absPath = os.Getwd() .. "/" .. buf:GetName()
+    local absPath = buf:GetName() -- this is the file path
     micro.InfoBar():Message(absPath)
 
     local buf,err = buffer.NewBuffer(absPath, "")
