@@ -13,6 +13,7 @@ local strings = import("strings")
 function init()
     config.MakeCommand("grep", grepCommand, config.NoComplete)
     config.MakeCommand("greppath", grepShowPath, config.NoComplete)
+    config.MakeCommand("greprun", runCommand, config.NoComplete)
 
     -- Register syntax file
     config.AddRuntimeFile("microgrep", config.RTHelp, "microgrep.md")
@@ -82,6 +83,30 @@ function grepCommand(bp, name)
     buf:SetName("grep:" .. name[1])
         
 end
+
+-- Run any arbitrary command passed in args
+function runCommand(bp, args)
+    if #args < 1 then
+        micro.InfoBar():Error("No argument provided to grep")
+        micro.Log("No argument provided to grep")
+        return
+    end
+    bp:AddTab()  -- This updates CurPane
+
+    bp:SetCmd({"filetype", "grep"})  -- Enable custom grep coloring for this buffer
+    local cmd = args[1]
+    local options = {}  -- remove first arg
+    if #args >= 2 then
+        for i = 2, #args do
+        options[i-1] = args[i]
+        end 
+    end
+    local job = shell.JobSpawn(cmd, options, stdoutCallback, stderrCallback, onExitCallback, micro.CurPane())
+    local buf = micro.CurPane().Buf
+    buf:SetName("grep:" .. cmd)
+        
+end
+
 
 -- Copy path of the current buffer to system clipboard
 function grepShowPath(bp)
@@ -156,8 +181,8 @@ function grepOpen(bp)
     bp:SetCmd({"filetype","unknown" })  -- Undo previously set grep filetype so that Micro autodetect file openen in a split
 
 
-    
-    micro.CurPane():NextSplit()  -- Toggle back to grep buffer
+    -- TODO:control with options
+    -- micro.CurPane():NextSplit()  -- Toggle back to grep buffer
     
     -- Use start location but set column 0 so that Cursor is on the valid path string.
     -- This is only for convenience before the next user action.
