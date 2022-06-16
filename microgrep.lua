@@ -62,7 +62,7 @@ function onExitCallback(out, args)
     buf:Insert(buffer.Loc(endLoc.X, endLoc.Y), "DONE")
 
     -- On exit, set buffer to read only
-    bp:SetCmd({"readonly", "true"})
+    -- bp:SetCmd({"readonly", "true"})
 
 end
 
@@ -206,7 +206,7 @@ function onInsertTab(bp)
     -- right now we set buffer to readonly in onExit() callback.
     -- If we remove the read-only flag, uncomment the next line
     -- as in this event we insert <tab> each time.
-    -- bp:Undo() -- Undo inserted indent
+    bp:Undo() -- Undo inserted indent
     
     grepOpen(bp) -- Run open function
 end
