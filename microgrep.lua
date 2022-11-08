@@ -60,9 +60,13 @@ function onExitCallback(out, args)
     local shrbuf = buf.SharedBuffer
     local endLoc = shrbuf.LineArray:End()
     buf:Insert(buffer.Loc(endLoc.X, endLoc.Y), "DONE")
-
+    -- On completion - enable custom grep coloring for this buffer
+    -- NOTE: Setting this earlier as SetLocalCmd has no effect.
+    -- SetCmd works but changes color syntax in all buffers.    
+    bp:SetLocalCmd({"filetype", "grep"})
+    
     -- On exit, set buffer to read only
-    -- bp:SetCmd({"readonly", "true"})
+    bp:SetLocalCmd({"readonly", "true"})
 
 end
 
@@ -75,7 +79,6 @@ function grepCommand(bp, name)
     end
     bp:AddTab()  -- This updates CurPane
 
-    bp:SetCmd({"filetype", "grep"})  -- Enable custom grep coloring for this buffer
     local options = {"-rnIi", name[1]} -- recursive with line number, skip binary, ignore case
     local job = shell.JobSpawn("grep", options, stdoutCallback, stderrCallback, onExitCallback, micro.CurPane())
 
@@ -93,7 +96,7 @@ function runCommand(bp, args)
     end
     bp:AddTab()  -- This updates CurPane
 
-    bp:SetCmd({"filetype", "grep"})  -- Enable custom grep coloring for this buffer
+    
     local cmd = args[1]
     local options = {}  -- remove first arg
     if #args >= 2 then
@@ -104,7 +107,7 @@ function runCommand(bp, args)
     local job = shell.JobSpawn(cmd, options, stdoutCallback, stderrCallback, onExitCallback, micro.CurPane())
     local buf = micro.CurPane().Buf
     buf:SetName("grep:" .. cmd)
-        
+    --bp:SetLocalCmd({"filetype", "grep"})  -- Enable custom grep coloring for this buffer    
 end
 
 
@@ -178,8 +181,6 @@ function grepOpen(bp)
     local subCursor = subbuf:GetActiveCursor()
     subCursor:GotoLoc(buffer.Loc(0, lineNum))
     micro.CurPane():Center()  -- Center view
-    bp:SetCmd({"filetype","unknown" })  -- Undo previously set grep filetype so that Micro autodetect file openen in a split
-
 
     -- TODO:control with options
     -- micro.CurPane():NextSplit()  -- Toggle back to grep buffer
@@ -206,7 +207,8 @@ function onInsertTab(bp)
     -- right now we set buffer to readonly in onExit() callback.
     -- If we remove the read-only flag, uncomment the next line
     -- as in this event we insert <tab> each time.
-    bp:Undo() -- Undo inserted indent
+    -- UPDATE: no longer needed if we set readonly as local.
+    -- bp:Undo() -- Undo inserted indent
     
     grepOpen(bp) -- Run open function
 end
